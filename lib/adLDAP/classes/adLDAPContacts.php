@@ -134,6 +134,7 @@ class adLDAPContacts {
             $fields = array("distinguishedname", "mail", "memberof", "department", "displayname", "telephonenumber", "primarygroupid", "objectsid"); 
         }
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return false; }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
         
         if ($entries[0]['count'] >= 1) {
@@ -249,11 +250,12 @@ class adLDAPContacts {
         $filter = "(&(objectClass=contact)(cn=" . $search . "))";
         $fields = array("displayname","distinguishedname");           
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
 
         $usersArray = array();
         for ($i=0; $i<$entries["count"]; $i++) {
-            if ($includeDescription && strlen($entries[$i]["displayname"][0])>0){
+            if ($includeDescription && isset($entries[$i]["displayname"][0]) && strlen($entries[$i]["displayname"][0])>0){
                 $usersArray[$entries[$i]["distinguishedname"][0]] = $entries[$i]["displayname"][0];
             } elseif ($includeDescription){
                 $usersArray[$entries[$i]["distinguishedname"][0]] = $entries[$i]["distinguishedname"][0];

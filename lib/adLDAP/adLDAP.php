@@ -621,11 +621,11 @@ class adLDAP {
         // Connect to the AD/LDAP server as the username/password
         $domainController = $this->randomController();
         if ($this->useSSL) {
-            $this->ldapConnection = ldap_connect("ldaps://" . $domainController, $this->adPort);
+            $this->ldapConnection = ldap_connect(sprintf("ldaps://%s:%d", $domainController, $this->adPort));
         } else {
-            $this->ldapConnection = ldap_connect($domainController, $this->adPort);
+            $this->ldapConnection = ldap_connect(sprintf("ldap://%s:%d", $domainController, $this->adPort));
         }
-               
+
         // Set some ldap options for talking to AD
         ldap_set_option($this->ldapConnection, LDAP_OPT_PROTOCOL_VERSION, 3);
         ldap_set_option($this->ldapConnection, LDAP_OPT_REFERRALS, $this->followReferrals);
@@ -647,7 +647,7 @@ class adLDAP {
                 }
             }
         }
-        if ($this->useSSO && $_SERVER['REMOTE_USER'] && $this->adminUsername === null && $_SERVER['KRB5CCNAME']) {
+        if ($this->useSSO && !empty($_SERVER['REMOTE_USER']) && $this->adminUsername === null && !empty($_SERVER['KRB5CCNAME'])) {
             putenv("KRB5CCNAME=" . $_SERVER['KRB5CCNAME']);  
             $this->ldapBind = @ldap_sasl_bind($this->ldapConnection, NULL, NULL, "GSSAPI"); 
             if (!$this->ldapBind) { 
@@ -672,6 +672,7 @@ class adLDAP {
     public function close() {
         if ($this->ldapConnection) {
             @ldap_close($this->ldapConnection);
+            $this->ldapConnection = null;
         }
     }
     
@@ -689,7 +690,7 @@ class adLDAP {
         if (empty($username) || empty($password)) { return false; }
         
         // Allow binding over SSO for Kerberos
-        if ($this->useSSO && $_SERVER['REMOTE_USER'] && $_SERVER['REMOTE_USER'] == $username && $this->adminUsername === NULL && $_SERVER['KRB5CCNAME']) { 
+        if ($this->useSSO && !empty($_SERVER['REMOTE_USER']) && $_SERVER['REMOTE_USER'] == $username && $this->adminUsername === NULL && !empty($_SERVER['KRB5CCNAME'])) { 
             putenv("KRB5CCNAME=" . $_SERVER['KRB5CCNAME']);
             $this->ldapBind = @ldap_sasl_bind($this->ldapConnection, NULL, NULL, "GSSAPI");
             if (!$this->ldapBind) {
@@ -735,11 +736,12 @@ class adLDAP {
         $filter = "(&(!(objectClass=computer))(|(anr=" . $search . ")))";
         $fields = array("cn","description","displayname","distinguishedname","samaccountname");
         $sr = ldap_search($this->getLdapConnection(), $this->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->getLdapConnection(), $sr);
 
         $objectArray = array();
         for ($i=0; $i<$entries["count"]; $i++) {
-            if ($includeDescription && strlen($entries[$i]["description"][0])>0) {
+            if ($includeDescription && isset($entries[$i]["description"][0]) && strlen($entries[$i]["description"][0])>0) {
                 $objectArray[$entries[$i]["samaccountname"][0]] = array($entries[$i]["cn"][0],$entries[$i]["description"][0],$entries[$i]["displayname"][0],$entries[$i]["distinguishedname"][0]);
             } elseif ($includeDescription) {
                 // description is set to displayname if no description is present
@@ -768,6 +770,7 @@ class adLDAP {
 
         $fields = array("objectclass");
         $sr = ldap_search($this->getLdapConnection(), $this->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->getLdapConnection(), $sr);
 
         $objects = array();
@@ -796,7 +799,8 @@ class adLDAP {
     public function getRootDse($attributes = array("*", "+")) {
         if (!$this->ldapBind) { return (false); }
         
-        $sr = @ldap_read($this->ldapConnection, NULL, 'objectClass=*', $attributes);
+        $sr = @ldap_read($this->ldapConnection, '', 'objectClass=*', $attributes);
+        if (!$sr) { return false; }
         $entries = @ldap_get_entries($this->ldapConnection, $sr);
         return $entries;
     }
@@ -935,7 +939,7 @@ class adLDAP {
             }
         }
         if ($encode === true && $key != 'password') {
-            $item = utf8_encode($item);   
+            $item = mb_convert_encoding($item, 'UTF-8', 'ISO-8859-1');   
         }
     }
     

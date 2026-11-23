@@ -189,6 +189,7 @@ class adLDAPUsers {
         
         // Search the directory for their information
         $info = @$this->info($username, array("memberof", "primarygroupid"), $isGUID);
+        if (!is_array($info)) { return array(); }
         $groups = $this->adldap->utilities()->niceNames($info[0]["memberof"]); // Presuming the entry returned is our guy (unique usernames)
 
         if ($recursive === true) {
@@ -230,6 +231,7 @@ class adLDAPUsers {
             $fields[] = "objectsid";
         }
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return false; }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
         
         if (isset($entries[0])) {
@@ -498,7 +500,7 @@ class adLDAPUsers {
     public function encodePassword($password) {
         $password="\"".$password."\"";
         $encoded="";
-        for ($i=0; $i <strlen($password); $i++) { $encoded.="{$password{$i}}\000"; }
+        for ($i=0; $i <strlen($password); $i++) { $encoded.="{$password[$i]}\000"; }
         return $encoded;
     }
      
@@ -534,11 +536,12 @@ class adLDAPUsers {
         $filter = "(&(objectClass=user)(samaccounttype=" . adLDAP::ADLDAP_NORMAL_ACCOUNT .")(objectCategory=person)(cn=" . $search . "))";
         $fields = array("samaccountname","displayname");
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
 
         $usersArray = array();
         for ($i=0; $i<$entries["count"]; $i++) {
-            if ($includeDescription && strlen($entries[$i]["displayname"][0])>0) {
+            if ($includeDescription && isset($entries[$i]["displayname"][0]) && strlen($entries[$i]["displayname"][0])>0) {
                 $usersArray[$entries[$i]["samaccountname"][0]] = $entries[$i]["displayname"][0];
             } elseif ($includeDescription) {
                 $usersArray[$entries[$i]["samaccountname"][0]] = $entries[$i]["samaccountname"][0];
@@ -594,11 +597,12 @@ class adLDAPUsers {
         $filter = "(&(objectClass=user)(samaccounttype=" . adLDAP::ADLDAP_NORMAL_ACCOUNT .")(objectCategory=person)" . $searchParams . ")";
         $fields = array("samaccountname","displayname");
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
 
         $usersArray = array();
         for ($i=0; $i < $entries["count"]; $i++) {
-            if ($includeDescription && strlen($entries[$i]["displayname"][0]) > 0) {
+            if ($includeDescription && isset($entries[$i]["displayname"][0]) && strlen($entries[$i]["displayname"][0]) > 0) {
                 $usersArray[$entries[$i]["samaccountname"][0]] = $entries[$i]["displayname"][0];
             }
             else if ($includeDescription) {
