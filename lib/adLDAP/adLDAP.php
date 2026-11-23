@@ -647,7 +647,7 @@ class adLDAP {
                 }
             }
         }
-        if ($this->useSSO && $_SERVER['REMOTE_USER'] && $this->adminUsername === null && $_SERVER['KRB5CCNAME']) {
+        if ($this->useSSO && !empty($_SERVER['REMOTE_USER']) && $this->adminUsername === null && !empty($_SERVER['KRB5CCNAME'])) {
             putenv("KRB5CCNAME=" . $_SERVER['KRB5CCNAME']);  
             $this->ldapBind = @ldap_sasl_bind($this->ldapConnection, NULL, NULL, "GSSAPI"); 
             if (!$this->ldapBind) { 
@@ -690,7 +690,7 @@ class adLDAP {
         if (empty($username) || empty($password)) { return false; }
         
         // Allow binding over SSO for Kerberos
-        if ($this->useSSO && $_SERVER['REMOTE_USER'] && $_SERVER['REMOTE_USER'] == $username && $this->adminUsername === NULL && $_SERVER['KRB5CCNAME']) { 
+        if ($this->useSSO && !empty($_SERVER['REMOTE_USER']) && $_SERVER['REMOTE_USER'] == $username && $this->adminUsername === NULL && !empty($_SERVER['KRB5CCNAME'])) { 
             putenv("KRB5CCNAME=" . $_SERVER['KRB5CCNAME']);
             $this->ldapBind = @ldap_sasl_bind($this->ldapConnection, NULL, NULL, "GSSAPI");
             if (!$this->ldapBind) {
