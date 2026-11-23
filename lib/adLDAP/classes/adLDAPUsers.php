@@ -541,7 +541,7 @@ class adLDAPUsers {
 
         $usersArray = array();
         for ($i=0; $i<$entries["count"]; $i++) {
-            if ($includeDescription && strlen($entries[$i]["displayname"][0])>0) {
+            if ($includeDescription && isset($entries[$i]["displayname"][0]) && strlen($entries[$i]["displayname"][0])>0) {
                 $usersArray[$entries[$i]["samaccountname"][0]] = $entries[$i]["displayname"][0];
             } elseif ($includeDescription) {
                 $usersArray[$entries[$i]["samaccountname"][0]] = $entries[$i]["samaccountname"][0];
@@ -602,7 +602,7 @@ class adLDAPUsers {
 
         $usersArray = array();
         for ($i=0; $i < $entries["count"]; $i++) {
-            if ($includeDescription && strlen($entries[$i]["displayname"][0]) > 0) {
+            if ($includeDescription && isset($entries[$i]["displayname"][0]) && strlen($entries[$i]["displayname"][0]) > 0) {
                 $usersArray[$entries[$i]["samaccountname"][0]] = $entries[$i]["displayname"][0];
             }
             else if ($includeDescription) {

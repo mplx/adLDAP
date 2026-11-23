@@ -741,7 +741,7 @@ class adLDAP {
 
         $objectArray = array();
         for ($i=0; $i<$entries["count"]; $i++) {
-            if ($includeDescription && strlen($entries[$i]["description"][0])>0) {
+            if ($includeDescription && isset($entries[$i]["description"][0]) && strlen($entries[$i]["description"][0])>0) {
                 $objectArray[$entries[$i]["samaccountname"][0]] = array($entries[$i]["cn"][0],$entries[$i]["description"][0],$entries[$i]["displayname"][0],$entries[$i]["distinguishedname"][0]);
             } elseif ($includeDescription) {
                 // description is set to displayname if no description is present
