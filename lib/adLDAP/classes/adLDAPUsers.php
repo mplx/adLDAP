@@ -230,6 +230,7 @@ class adLDAPUsers {
             $fields[] = "objectsid";
         }
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return false; }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
         
         if (isset($entries[0])) {
@@ -534,6 +535,7 @@ class adLDAPUsers {
         $filter = "(&(objectClass=user)(samaccounttype=" . adLDAP::ADLDAP_NORMAL_ACCOUNT .")(objectCategory=person)(cn=" . $search . "))";
         $fields = array("samaccountname","displayname");
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
 
         $usersArray = array();
@@ -594,6 +596,7 @@ class adLDAPUsers {
         $filter = "(&(objectClass=user)(samaccounttype=" . adLDAP::ADLDAP_NORMAL_ACCOUNT .")(objectCategory=person)" . $searchParams . ")";
         $fields = array("samaccountname","displayname");
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
 
         $usersArray = array();

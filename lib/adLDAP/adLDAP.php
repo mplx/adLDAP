@@ -735,6 +735,7 @@ class adLDAP {
         $filter = "(&(!(objectClass=computer))(|(anr=" . $search . ")))";
         $fields = array("cn","description","displayname","distinguishedname","samaccountname");
         $sr = ldap_search($this->getLdapConnection(), $this->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->getLdapConnection(), $sr);
 
         $objectArray = array();
@@ -768,6 +769,7 @@ class adLDAP {
 
         $fields = array("objectclass");
         $sr = ldap_search($this->getLdapConnection(), $this->getBaseDn(), $filter, $fields);
+        if (!$sr) { return array(); }
         $entries = ldap_get_entries($this->getLdapConnection(), $sr);
 
         $objects = array();
@@ -797,6 +799,7 @@ class adLDAP {
         if (!$this->ldapBind) { return (false); }
         
         $sr = @ldap_read($this->ldapConnection, NULL, 'objectClass=*', $attributes);
+        if (!$sr) { return false; }
         $entries = @ldap_get_entries($this->ldapConnection, $sr);
         return $entries;
     }

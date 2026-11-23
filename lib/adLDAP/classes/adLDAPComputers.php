@@ -70,6 +70,7 @@ class adLDAPComputers {
             $fields = array("memberof","cn","displayname","dnshostname","distinguishedname","objectcategory","operatingsystem","operatingsystemservicepack","operatingsystemversion"); 
         }
         $sr = ldap_search($this->adldap->getLdapConnection(), $this->adldap->getBaseDn(), $filter, $fields);
+        if (!$sr) { return false; }
         $entries = ldap_get_entries($this->adldap->getLdapConnection(), $sr);
         
         return $entries;
