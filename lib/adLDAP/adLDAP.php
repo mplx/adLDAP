@@ -799,7 +799,7 @@ class adLDAP {
     public function getRootDse($attributes = array("*", "+")) {
         if (!$this->ldapBind) { return (false); }
         
-        $sr = @ldap_read($this->ldapConnection, NULL, 'objectClass=*', $attributes);
+        $sr = @ldap_read($this->ldapConnection, '', 'objectClass=*', $attributes);
         if (!$sr) { return false; }
         $entries = @ldap_get_entries($this->ldapConnection, $sr);
         return $entries;
