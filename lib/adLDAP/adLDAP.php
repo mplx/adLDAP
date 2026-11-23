@@ -949,7 +949,6 @@ class adLDAP {
     * @return string
     */
     protected function randomController() {
-        mt_srand(doubleval(microtime()) * 100000000); // For older PHP versions
         /*if (sizeof($this->domainControllers) > 1) {
             $adController = $this->domainControllers[array_rand($this->domainControllers)]; 
             // Test if the controller is responding to pings
