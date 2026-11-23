@@ -189,6 +189,7 @@ class adLDAPUsers {
         
         // Search the directory for their information
         $info = @$this->info($username, array("memberof", "primarygroupid"), $isGUID);
+        if (!is_array($info)) { return array(); }
         $groups = $this->adldap->utilities()->niceNames($info[0]["memberof"]); // Presuming the entry returned is our guy (unique usernames)
 
         if ($recursive === true) {
